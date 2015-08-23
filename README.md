@@ -1,4 +1,4 @@
-# falcor-shapes
+# falcor-shapes [![Build Status](https://travis-ci.org/marcello3d/falcor-shapes.svg)](https://travis-ci.org/marcello3d/falcor-shapes)
 
 falcor-shapes is a convenience function for generating [Falcor](http://netflix.github.io/falcor/) 
 [PathSets](http://netflix.github.io/falcor/documentation/paths.html).
