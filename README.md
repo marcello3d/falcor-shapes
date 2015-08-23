@@ -54,7 +54,7 @@ objects with keys and values. If a value is a nested JavaScript object, it will 
 * `{ <key>: <Shape> }` recurses 
 * `$` is a special key that expects an array: `{ $: [ <range>, <Shape> ] }` and becomes `[ <range>, <Shape> ]`
 
-Examples:
+Example:
 
 ```js
 {
@@ -82,6 +82,8 @@ becomes:
 [ 'people', { from: 0, to: 100 }, 'name', 'last' ],
 [ 'people', { from: 0, to: 100 }, 'age' ]
 ```
+
+See more examples in [test/test.js](test/test.js).
 
 ## Usage
 
@@ -111,11 +113,11 @@ model.get.apply(model, sets).then( ... )
 We can make a helper function to simplify this:
 
 ```js
-function getShape(shape) {
-  return model.get.apply(shape)
+function getWithShape(shape) {
+  return model.get.apply(model, shape)
 }
 
-getShape({
+getWithShape({
   people: {
     length: true,
     $: [
