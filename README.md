@@ -42,6 +42,8 @@ npm install falcor-shapes
 I built this function while playing around with falcor for the first time a few days ago. I found it easier to think of
 data in terms of a hierarchical structure rather than a list of string paths.
 
+It also allows you to split up the list of what fields you need across multiple files (similar to GraphQL/Relay in React).
+
 ## Shape documentation
 
 A shape is a recursive structure. Each shape is a JavaScript object with keys and values. 
@@ -101,13 +103,16 @@ var sets = shapeToSet({
 
 // falcor's model.get expects each path as separate arguments, so we need to call 'apply'
 model.get.apply(model, sets).then( ... )
+```
 
-// We can make a helper function to simplify this:
-function getShape(model, shape) {
-  return model.get.apply(model, shape)
+We can make a helper function to simplify this:
+
+```
+function getShape(shape) {
+  return model.get.apply(shape)
 }
 
-getShape(model, {
+getShape({
   people: {
     length: true,
     $: [
