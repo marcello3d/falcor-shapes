@@ -1,8 +1,9 @@
 # falcor-shapes
 
-falcor-shapes is a convenience function for [falcor paths](http://netflix.github.io/falcor/documentation/paths.html).
+falcor-shapes is a convenience function for generating [Falcor](http://netflix.github.io/falcor/) 
+[PathSets](http://netflix.github.io/falcor/documentation/paths.html).
 
-It converts a "Shape" into an array of falcor PathSets.
+It converts a "Shape" into an array of Falcor PathSets.
 
 For example: 
 ```js
@@ -44,12 +45,14 @@ data in terms of a hierarchical structure rather than a list of string paths.
 
 It also allows you to split up the list of what fields you need across multiple files (similar to GraphQL/Relay in React).
 
-## Shape documentation
+## What is a "Shape"?
 
-A shape is a recursive structure. Each shape is a JavaScript object with keys and values. 
+A shape is a recursive structure that resembles the JavaScript structure you're expecting. Shapes are simply JavaScript 
+objects with keys and values. If a value is a nested JavaScript object, it will be expanded into multiple PathSets. 
 
-`{ <key>:true }` is a leaf value, and becomes the path `[ '<key>' ]`
-`$` is a special key that expects an array: `{ $: [ <range>, <subtree> ] }` and becomes `[ <range>, <subtree> ]`
+* `{ <key>: true }` is a leaf value, and becomes the path `[ '<key>' ]`
+* `{ <key>: <Shape> }` recurses 
+* `$` is a special key that expects an array: `{ $: [ <range>, <Shape> ] }` and becomes `[ <range>, <Shape> ]`
 
 Examples:
 
@@ -107,7 +110,7 @@ model.get.apply(model, sets).then( ... )
 
 We can make a helper function to simplify this:
 
-```
+```js
 function getShape(shape) {
   return model.get.apply(shape)
 }
@@ -144,7 +147,7 @@ npm test
 
 ## Contributing
 
-Feel free to submit PRs!
+Feel free to submit pull requests!
 
 ## License
 
