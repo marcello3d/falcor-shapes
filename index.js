@@ -7,7 +7,9 @@ module.exports = function shapeToPathSets (shape) {
   var array = []
   Object.keys(shape).forEach(function (key) {
     var value = shape[key]
-    if (value === true) { // e.g. name:true
+    if (!value) {
+      // falsy values are ignored
+    } else if (value === true) { // e.g. name:true
       array.push([key])
     } else if (key === '$') {
       // e.g. { $: [ { from:0, to:10 }, { ... } ]
