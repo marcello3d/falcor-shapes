@@ -17,6 +17,9 @@
     "pathset"
   ],
   "author": "Marcello Bastéa-Forte <marcello@cellosoft.com>",
+  "contributors": [
+    "Jess Telford <hi@jes.st> (http://jes.st)"
+  ],
   "license": "Zlib",
   "bugs": {
     "url": "https://github.com/marcello3d/falcor-shapes/issues"
