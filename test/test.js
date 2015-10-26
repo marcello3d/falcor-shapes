@@ -224,3 +224,186 @@ describe('range structures', function () {
     )
   })
 })
+
+describe('function resolution', function () {
+  describe('execution path', function () {
+    it('doesn\'t execute resolver when not used', function () {
+      var called = false
+      shapeToPathSets(
+        {name: true},
+        function () {
+          called = true
+        }
+      )
+      assert(!called)
+    })
+    it('executes resolver when used', function () {
+      var called = false
+      shapeToPathSets(
+        {name: function () {}},
+        function () {
+          called = true
+          return true
+        }
+      )
+      assert(called)
+    })
+    it('defaults to pass-through when resolver not passed', function () {
+      var called = false
+      shapeToPathSets(
+        {
+          name: function () {
+            called = true
+            return true
+          }
+        }
+      )
+      assert(called)
+    })
+    it('throws when resolver does not return `true` or an object', function () {
+      assert.throws(function () {
+        shapeToPathSets(
+          {name: function () {}},
+          function () {
+            return false
+          }
+        )},
+        /`resolver` must return `true` or an object/
+      )
+    })
+    it('does not throw when resolver returns `true`', function () {
+      assert.doesNotThrow(function () {
+        shapeToPathSets(
+          {name: function () {}},
+          function () {
+            return true
+          }
+        )}
+      )
+    })
+    it('does not throw when resolver returns an object', function () {
+      assert.doesNotThrow(function () {
+        shapeToPathSets(
+          {name: function () {}},
+          function () {
+            return {}
+          }
+        )}
+      )
+    })
+    it('passes the function to be resolved', function () {
+      var resolvable = function () {}
+      shapeToPathSets(
+        {name: resolvable},
+        function (functionToResolve) {
+          assert.equal(functionToResolve, resolvable)
+          return true
+        }
+      )
+    })
+    it('passes the shape and key when resolving', function () {
+      var shape = {name: function () {}}
+      shapeToPathSets(
+        function (functionToResolve, shapeToResolve, keyToResolve) {
+          assert.equal(shape, shapeToResolve)
+          assert.equal(keyToResolve, 'name')
+          return true
+        }
+      )
+    })
+  })
+  describe('shape resolution', function () {
+    it('handles `true` from resolver', function () {
+      assert.deepEqual(
+        [
+          [ 'name' ]
+        ],
+        shapeToPathSets(
+          {
+            name: function () {}
+          },
+          function () {
+            return true
+          }
+        )
+      )
+    })
+    it('handles object from resolver', function () {
+      assert.deepEqual(
+        [
+          [ 'name', 'first' ],
+          [ 'name', 'last' ]
+        ],
+        shapeToPathSets(
+          {
+            name: function () {}
+          },
+          function () {
+            return {
+              first: true,
+              last: true
+            }
+          }
+        )
+      )
+    })
+    it('handles multiple resolvables', function () {
+      assert.deepEqual(
+        [
+          [ 'name', 'first' ],
+          [ 'name', 'last' ],
+          [ 'user', 'avatar' ],
+          [ 'user', 'username' ]
+        ],
+        shapeToPathSets(
+          {
+            name: function () {
+              return {
+                first: true,
+                last: true
+              }
+            },
+            user: function () {
+              return {
+                avatar: true,
+                username: true
+              }
+            }
+          },
+          function (resolvable) {
+            return resolvable()
+          }
+        )
+      )
+    })
+    it('handles nested resolvables', function () {
+      assert.deepEqual(
+        [
+          [ 'user', 'name', 'first' ],
+          [ 'user', 'name', 'last' ],
+          [ 'user', 'avatar' ],
+          [ 'user', 'username' ]
+        ],
+        shapeToPathSets(
+          {
+            user: function () {
+              return {
+                name: function () {
+                  return {
+                    first: true,
+                    last: true
+                  }
+                },
+                avatar: true,
+                username: true
+              }
+            }
+          },
+          function (resolvable) {
+            return resolvable()
+          }
+        )
+      )
+    })
+  })
+})

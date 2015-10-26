@@ -8,7 +8,7 @@ It converts a "Shape" into an array of Falcor PathSets.
 For example: 
 ```js
 {
- name: {
+  name: {
     first: true,
     last: true
   },
@@ -48,10 +48,11 @@ It also allows you to split up the list of what fields you need across multiple 
 ## What is a "Shape"?
 
 A shape is a recursive structure that resembles the JavaScript structure you're expecting. Shapes are simply JavaScript 
-objects with keys and values. If a value is a nested JavaScript object, it will be expanded into multiple PathSets. 
+objects with keys and values. If a value is a nested JavaScript object, it will be expanded into multiple PathSets. If value is a function, its result is used as the value.
 
 * `{ <key>: true }` is a leaf value, and becomes the path `[ '<key>' ]`
 * `{ <key>: <Shape> }` recurses 
+* `{ <key>: <Function> }` recurses on the result of `<Function>`
 * `$` is a special key that expects an array: `{ $: [ <range>, <Shape> ] }` and becomes `[ <range>, <Shape> ]`
 
 Example:
@@ -65,7 +66,9 @@ Example:
       {
         name: {
           first: true,
-          last: true
+          last: function () {
+            return true
+          }
         },
         age: true
       }
@@ -132,6 +135,69 @@ getWithShape({
     ]
   }
 }).then( ... )
+```
+
+### Resolving functions
+
+When the value is a function, its result will be used to resolve the shape.
+`falcor-shapes` accepts an optional second parameter; a resolution function called with `(<resolvable>, <shape>, <key>)`, where;
+
+* `resolvable` is the function specified in the shape
+* `shape` is the shape it is part of
+* `key` the function's key in the shape
+
+```js
+var shapeToSet = require('falcor-shapes')
+
+var sets = shapeToSet(
+  {
+    name: function () {
+      return {
+        first: true,
+        last: true
+      }
+    }
+  },
+  function(resolvable, shape, key) {
+    return resolvable()
+  }
+)
+
+model.get.apply(model, sets).then( ... )
+```
+
+A more complex example:
+
+```js
+var shapeToSet = require('falcor-shapes')
+
+var includeFirstName = true
+
+var sets = shapeToSet(
+  {
+    name: function (withFirstName) {
+      if (withFirstName) {
+        return {
+          first: true,
+          last: true
+        }
+      } else {
+        return {
+          last: true
+        }
+      }
+    }
+  },
+  function(resolvable, shape, key) {
+    if (key === 'name') {
+      return resolvable(includeFirstName)
+    } else {
+      return resolvable()
+    }
+  }
+)
+
+model.get.apply(model, sets).then( ... )
 ```
 
 ## Development and Test
